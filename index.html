@@ -446,6 +446,7 @@ const vocab = [
   {zh:"杯",py:"bēi",en:"cup of (measure word)",cat:"Measure Words",week:2},
   {zh:"杯子",py:"bēizi",en:"cup (the item)",cat:"Measure Words",week:2},
   {zh:"个",py:"gè",en:"general measure word",cat:"Measure Words",week:2},
+  {zh:"瓶",py:"píng",en:"bottle (measure word)",cat:"Measure Words",week:3},
   // FOOD & DRINK
   {zh:"咖啡",py:"kāfēi",en:"coffee",cat:"Food & Drink",week:2},
   {zh:"茶",py:"chá",en:"tea",cat:"Food & Drink",week:2},
@@ -455,6 +456,8 @@ const vocab = [
   {zh:"菜",py:"cài",en:"dish / food",cat:"Food & Drink",week:3},
   {zh:"水",py:"shuǐ",en:"water",cat:"Food & Drink",week:3},
   {zh:"做菜",py:"zuò cài",en:"to cook (make a dish)",cat:"Food & Drink",week:3},
+  {zh:"啤酒",py:"píjiǔ",en:"beer",cat:"Food & Drink",week:3},
+  {zh:"一瓶啤酒",py:"yī píng píjiǔ",en:"one bottle of beer",cat:"Food & Drink",week:3},
   // CLOTHING
   {zh:"衬衫",py:"chènshān",en:"shirt",cat:"Clothing",week:2},
   // PLACES
@@ -496,6 +499,7 @@ const vocab = [
   // CONNECTORS – Week 3
   {zh:"但是",py:"dànshì",en:"but",cat:"Connectors",week:3},
   {zh:"这个",py:"zhège",en:"this",cat:"Connectors",week:3},
+  {zh:"和",py:"hé",en:"and",cat:"Connectors",week:3},
   // PEOPLE – Week 3
   {zh:"老师",py:"lǎoshī",en:"teacher",cat:"People",week:3},
 ];
@@ -545,6 +549,9 @@ const woExercises = [
   {en:"I cannot speak Mandarin.",tiles:["wǒ","bù","huì","shuō","hànyǔ","。"],ans:"wǒ bù huì shuō hànyǔ 。",py:"Wǒ bù huì shuō hànyǔ.",week:3},
   {en:"How do you read this character?",tiles:["zhège","hànzì","zěnme","dú","？"],ans:"zhège hànzì zěnme dú ？",py:"Zhège hànzì zěnme dú?",week:3},
   {en:"I can't cook Chinese food but I can eat it.",tiles:["wǒ","bù huì","zuò","Zhōngguó cài","dànshì","wǒ","huì","chī","。"],ans:"wǒ bù huì zuò Zhōngguó cài dànshì wǒ huì chī 。",py:"Wǒ bù huì zuò Zhōngguó cài, dànshì wǒ huì chī.",week:3},
+  {en:"I want to drink one bottle of beer.",tiles:["wǒ","xiǎng","hē","yī","píng","píjiǔ","。"],ans:"wǒ xiǎng hē yī píng píjiǔ 。",py:"Wǒ xiǎng hē yī píng píjiǔ.",week:3},
+  {en:"I can speak French, English and Mandarin.",tiles:["wǒ","huì","shuō","fǎyǔ","yīngyǔ","hé","hànyǔ","。"],ans:"wǒ huì shuō fǎyǔ yīngyǔ hé hànyǔ 。",py:"Wǒ huì shuō fǎyǔ, yīngyǔ hé hànyǔ.",week:3},
+  {en:"How do you make American food?",tiles:["Měiguó cài","zěnme","zuò","？"],ans:"Měiguó cài zěnme zuò ？",py:"Měiguó cài zěnme zuò?",week:3},
 ];
 
 const qaExercises = [
@@ -568,6 +575,12 @@ const qaExercises = [
    ans:[{py:"Wǒ bù huì dú zhège hànzì.",en:"I can't read this character."}]},
   {q:"Nǐ jīntiān xiàwǔ xiǎng qù nǎlǐ?",en:"Where do you want to go this afternoon?",week:2,
    ans:[{py:"Wǒ jīntiān xiàwǔ xiǎng qù Xīngbākè.",en:"I want to go to Starbucks this afternoon."}]},
+  {q:"Nǐ huì zuò shénme cài?",en:"What food can you cook?",week:3,
+   ans:[{py:"Wǒ huì zuò Měiguó cài.",en:"I can make American food."},{py:"Wǒ bù huì zuò Zhōngguó cài.",en:"I can't make Chinese food."}]},
+  {q:"Nǐ xiǎng hē píjiǔ ma?",en:"Do you want to drink beer?",week:3,
+   ans:[{py:"Wǒ xiǎng hē yī píng píjiǔ.",en:"I want to drink one bottle of beer."},{py:"Wǒ bù xiǎng hē píjiǔ.",en:"I don't want to drink beer."}]},
+  {q:"Zhège cài zěnme zuò?",en:"How do you make this dish?",week:3,
+   ans:[{py:"Wǒ bù huì zuò zhège cài.",en:"I don't know how to make this dish."}]},
 ];
 
 // ═══════════════════════════════════
