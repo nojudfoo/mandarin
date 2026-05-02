@@ -231,6 +231,28 @@ body {
 .ppy { font-size:0.85rem; color:var(--gold); font-style:italic; font-family:'Libre Baskerville',serif; }
 .pzh { font-family:'Noto Serif SC',serif; font-size:0.82rem; color:rgba(255,255,255,0.6); }
 .pen2 { font-size:0.67rem; color:var(--mist); }
+
+/* ── PRONUNCIATION ── */
+.pron-row { background:var(--raised); border-radius:10px; padding:11px 13px; display:flex; align-items:baseline; gap:12px; }
+.pron-combo { font-family:'Libre Baskerville',serif; font-size:1.1rem; font-style:italic; color:var(--gold); min-width:48px; }
+.pron-sound { font-size:0.72rem; color:var(--paper); flex:1; }
+.pron-ex { font-size:0.65rem; color:var(--mist); }
+
+/* ── QUESTION WORDS ── */
+.qw-row { display:flex; align-items:center; padding:13px 0; border-bottom:1px solid var(--border); gap:14px; }
+.qw-py { font-family:'Libre Baskerville',serif; font-size:1.2rem; font-style:italic; color:var(--gold); min-width:80px; }
+.qw-zh { font-family:'Noto Serif SC',serif; font-size:1.4rem; color:var(--paper); min-width:44px; }
+.qw-en { font-size:0.75rem; color:var(--mist); flex:1; }
+.qw-note { font-size:0.62rem; color:rgba(232,184,75,0.6); margin-top:2px; }
+
+/* ── LOOKUP ── */
+.lookup-row { display:flex; align-items:center; padding:11px 0; border-bottom:1px solid var(--border); gap:12px; }
+.lookup-zh { font-family:'Noto Serif SC',serif; font-size:1.3rem; color:var(--paper); min-width:46px; }
+.lookup-py { font-size:0.78rem; color:var(--gold); font-style:italic; font-family:'Libre Baskerville',serif; }
+.lookup-en { font-size:0.7rem; color:var(--mist); }
+.lookup-cat { font-size:0.55rem; background:var(--gold-dim); color:var(--gold); border-radius:8px; padding:2px 7px; white-space:nowrap; flex-shrink:0; }
+.lookup-empty { text-align:center; color:var(--mist); font-size:0.75rem; padding:30px 0; }
+mark { background:rgba(232,184,75,0.25); color:var(--gold); border-radius:3px; padding:0 2px; }
 </style>
 </head>
 <body>
@@ -262,6 +284,9 @@ body {
     <div class="tab" onclick="go('characters')">Characters</div>
     <div class="tab" onclick="go('patterns')">Patterns</div>
     <div class="tab" onclick="go('vocab')">Vocab</div>
+    <div class="tab" onclick="go('questions')">Questions</div>
+    <div class="tab" onclick="go('pronunciation')">Pronunciation</div>
+    <div class="tab" onclick="go('lookup')">Lookup</div>
   </nav>
 </div>
 
@@ -305,7 +330,7 @@ body {
   <div class="fc-wrap" onclick="flipFC()">
     <div class="fc" id="theFC">
       <div class="fc-face front"><div class="fc-cat" id="fcCat">—</div><div class="fc-py" id="fcPy">—</div><div class="fc-hint">tap to reveal</div></div>
-      <div class="fc-face back"><div class="fc-zh" id="fcZh">—</div><div class="fc-en" id="fcEn">—</div></div>
+      <div class="fc-face back"><div class="fc-zh" id="fcZh">—</div><div class="fc-en" id="fcEn">—</div><div style="margin-top:10px;cursor:pointer;font-size:1.2rem" onclick="event.stopPropagation();speakWord(document.getElementById('fcZh').textContent)">🔊</div></div>
     </div>
   </div>
   <div class="fc-btns" id="fcBtns" style="display:none">
@@ -383,6 +408,72 @@ body {
   <div class="lbl">All Vocabulary <span class="badge" id="vcTotal">—</span></div>
   <div class="pills" id="vcPills"></div>
   <div id="vcList"></div>
+</div>
+
+<!-- QUESTION WORDS -->
+<div class="scr" id="scr-questions">
+  <div class="lbl">Question Words</div>
+  <div id="qwList"></div>
+</div>
+
+<!-- PRONUNCIATION -->
+<div class="scr" id="scr-pronunciation">
+  <div class="lbl">Pronunciation Guide</div>
+
+  <div class="pc">
+    <div class="pp">The Four Tones</div>
+    <div class="pen">Every syllable in Mandarin has one of four tones — the same syllable means completely different things depending on the tone.</div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+      <div style="background:var(--raised);border-radius:10px;padding:12px 14px;border-left:3px solid #e8b84b">
+        <div style="font-size:0.85rem;color:var(--gold);font-family:'Libre Baskerville',serif;font-style:italic">1st tone — ā (flat, high)</div>
+        <div style="font-size:0.7rem;color:var(--mist);margin-top:3px">Hold it high and steady, like singing a note. <strong style="color:var(--paper)">mā</strong> = mother</div>
+      </div>
+      <div style="background:var(--raised);border-radius:10px;padding:12px 14px;border-left:3px solid #3d9970">
+        <div style="font-size:0.85rem;color:#3d9970;font-family:'Libre Baskerville',serif;font-style:italic">2nd tone — á (rising)</div>
+        <div style="font-size:0.7rem;color:var(--mist);margin-top:3px">Rise like asking a question. <strong style="color:var(--paper)">má</strong> = hemp / numb</div>
+      </div>
+      <div style="background:var(--raised);border-radius:10px;padding:12px 14px;border-left:3px solid #7a8fa8">
+        <div style="font-size:0.85rem;color:#7a8fa8;font-family:'Libre Baskerville',serif;font-style:italic">3rd tone — ǎ (dip)</div>
+        <div style="font-size:0.7rem;color:var(--mist);margin-top:3px">Dip down then back up, like saying "huh?" <strong style="color:var(--paper)">mǎ</strong> = horse</div>
+      </div>
+      <div style="background:var(--raised);border-radius:10px;padding:12px 14px;border-left:3px solid #d64c3f">
+        <div style="font-size:0.85rem;color:#d64c3f;font-family:'Libre Baskerville',serif;font-style:italic">4th tone — à (falling)</div>
+        <div style="font-size:0.7rem;color:var(--mist);margin-top:3px">Drop sharply, like giving an order. <strong style="color:var(--paper)">mà</strong> = to scold</div>
+      </div>
+      <div style="background:var(--raised);border-radius:10px;padding:12px 14px;border-left:3px solid rgba(255,255,255,0.15)">
+        <div style="font-size:0.85rem;color:var(--mist);font-family:'Libre Baskerville',serif;font-style:italic">Neutral tone — a (unstressed)</div>
+        <div style="font-size:0.7rem;color:var(--mist);margin-top:3px">Short and light, no tone mark. <strong style="color:var(--paper)">ma</strong> = question particle 吗</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pc" style="margin-top:12px">
+    <div class="pp">Tricky Letter Combinations</div>
+    <div class="pen">These don't sound like English — memorize them as sounds, not spellings.</div>
+    <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px" id="pronunciationGuide"></div>
+  </div>
+
+  <div class="pc" style="margin-top:12px">
+    <div class="pp">Consonants to Watch</div>
+    <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px" id="consonantGuide"></div>
+  </div>
+
+  <div class="pc" style="margin-top:12px">
+    <div class="pp">Pronunciation in Your Vocab</div>
+    <div class="pen">Tap any word to hear how it sounds in context.</div>
+    <div style="margin-top:10px" id="pronVocabList"></div>
+  </div>
+</div>
+
+<!-- WORD LOOKUP -->
+<div class="scr" id="scr-lookup">
+  <div class="lbl">Word Lookup — <span id="lookupCount">—</span> words total</div>
+  <div style="position:relative;margin-bottom:14px">
+    <input id="lookupInput" type="text" placeholder="Search English, pinyin, or Chinese…"
+      style="width:100%;padding:12px 14px;background:var(--surface);border:1px solid rgba(232,184,75,0.3);border-radius:12px;color:var(--paper);font-family:'JetBrains Mono';font-size:0.82rem;outline:none"
+      oninput="renderLookup()">
+  </div>
+  <div id="lookupResults"></div>
 </div>
 
 </div><!-- /main -->
@@ -612,6 +703,7 @@ window.addEventListener('load', () => {
   buildPills('vcPills', v=>v.cat, setVCCat, 'All');
   initFC(); initWO(); initQA(); initCQ(); initTr();
   renderPatterns(); renderVC();
+  renderQuestions(); renderPronunciation(); initLookup();
   checkInstall();
   setupTraceDrawing();
   scheduleNotif();
@@ -652,7 +744,7 @@ function checkInstall() {
 // TAB
 // ═══════════════════════════════════
 function go(t) {
-  const ts=['home','flashcards','wordorder','qa','characters','patterns','vocab'];
+  const ts=['home','flashcards','wordorder','qa','characters','patterns','vocab','questions','pronunciation','lookup'];
   document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',ts[i]===t));
   document.querySelectorAll('.scr').forEach(el=>el.classList.remove('on'));
   document.getElementById('scr-'+t).classList.add('on');
@@ -1084,6 +1176,133 @@ function renderPatterns(){
           <div class="pen2">${e.en}</div>
         </div>`).join('')}
       </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════
+// QUESTION WORDS
+// ═══════════════════════════════════
+const questionWords = [
+  {py:"shénme",zh:"什么",en:"what",note:"Nǐ xiǎng chī shénme? — What do you want to eat?"},
+  {py:"nǎlǐ",zh:"哪里",en:"where",note:"Nǐ xiǎng qù nǎlǐ? — Where do you want to go?"},
+  {py:"jǐ",zh:"几",en:"how many (under 10)",note:"Use with a measure word: jǐ bēi? — how many cups?"},
+  {py:"duōshao",zh:"多少",en:"how many / how much (10+)",note:"For larger quantities or prices"},
+  {py:"ma",zh:"吗",en:"yes/no question particle",note:"Add to end of any statement to make it a question"},
+  {py:"zěnme",zh:"怎么",en:"how to (do something)",note:"Noun + zěnme + verb: zhège zěnme zuò? — how to make this?"},
+  {py:"shuí / shéi",zh:"谁",en:"who",note:"Coming soon in later lessons"},
+  {py:"wèishénme",zh:"为什么",en:"why",note:"Coming soon in later lessons"},
+  {py:"shénme shíhou",zh:"什么时候",en:"when",note:"Coming soon in later lessons"},
+];
+function renderQuestions(){
+  document.getElementById('qwList').innerHTML = questionWords.map(q=>`
+    <div class="qw-row">
+      <div class="qw-py">${q.py}</div>
+      <div class="qw-zh">${q.zh}</div>
+      <div style="flex:1">
+        <div class="qw-en">${q.en}</div>
+        <div class="qw-note">${q.note}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════
+// PRONUNCIATION
+// ═══════════════════════════════════
+const vowelCombos = [
+  {combo:"ou",sound:"Like 'oh' in 'go' — round your lips",ex:"gǒu (dog), hǒu (roar)"},
+  {combo:"uo",sound:"Like 'w' + 'or' — 'wor' but shorter",ex:"zuò (do), shuō (speak)"},
+  {combo:"ei",sound:"Like 'ay' in 'hey'",ex:"bēi (cup), fēi (fly)"},
+  {combo:"ai",sound:"Like 'eye'",ex:"mǎi (buy), tài (too)"},
+  {combo:"ao",sound:"Like 'ow' in 'cow'",ex:"hǎo (good), māo (cat)"},
+  {combo:"ia",sound:"Like 'ya' — quick 'ee' then 'ah'",ex:"jiā (home), xiǎng (want)"},
+  {combo:"ie",sound:"Like 'yeah'",ex:"xiě (write), biē (suppress)"},
+  {combo:"ui",sound:"Like 'way'",ex:"shuǐ (water), duì (correct)"},
+  {combo:"iu",sound:"Like 'yo' — quick 'ee' then 'oh'",ex:"jiǔ (nine/wine), liù (six)"},
+  {combo:"ue / üe",sound:"Like 'yw-eh' — purse lips then say 'eh'",ex:"xuě (snow), yuè (moon)"},
+  {combo:"ian",sound:"Like 'yen'",ex:"tiān (sky/day), diǎn (o'clock)"},
+  {combo:"uan",sound:"Like 'w' + 'an'",ex:"duàn (section), wǎn (bowl)"},
+  {combo:"ün / un",sound:"After j/q/x/y: purse lips and say 'een'",ex:"jūn (army), yùn (carry)"},
+  {combo:"ang",sound:"Like 'ahng' — open 'ah' with nasal ending",ex:"shāng (commerce), máng (busy)"},
+  {combo:"eng",sound:"Like 'ung' in 'lung'",ex:"lěng (cold), péng (friend)"},
+  {combo:"ing",sound:"Like English 'ing'",ex:"míng (name), xīng (star)"},
+  {combo:"ong",sound:"Like 'oong' — round lips",ex:"zhōng (middle/China), hóng (red)"},
+];
+const consonants = [
+  {combo:"x",sound:"Like 'sh' but with tongue behind lower teeth — softer than English 'sh'",ex:"xiǎng, xǐhuān, Xīngbākè"},
+  {combo:"q",sound:"Like 'ch' but with tongue behind lower teeth",ex:"qù, qǐng"},
+  {combo:"zh",sound:"Like 'j' in 'judge' but with tongue curled back",ex:"zhè, zhōng, zuò"},
+  {combo:"ch",sound:"Like 'ch' but tongue curled back (retroflex)",ex:"chī, chá, chèn"},
+  {combo:"sh",sound:"Like 'sh' but tongue curled back",ex:"shāng, shuō, shí"},
+  {combo:"r",sound:"Like 'r' in 'pleasure' — tongue curled, buzzy",ex:"rén (person), rì (day)"},
+  {combo:"z",sound:"Like 'ds' in 'roads'",ex:"zǒu, zuò, zěnme"},
+  {combo:"c",sound:"Like 'ts' in 'cats'",ex:"cài, cóng"},
+];
+function renderPronunciation(){
+  document.getElementById('pronunciationGuide').innerHTML = vowelCombos.map(r=>`
+    <div class="pron-row">
+      <div class="pron-combo">${r.combo}</div>
+      <div style="flex:1">
+        <div class="pron-sound">${r.sound}</div>
+        <div class="pron-ex">${r.ex}</div>
+      </div>
+    </div>`).join('');
+  document.getElementById('consonantGuide').innerHTML = consonants.map(r=>`
+    <div class="pron-row">
+      <div class="pron-combo">${r.combo}</div>
+      <div style="flex:1">
+        <div class="pron-sound">${r.sound}</div>
+        <div class="pron-ex">${r.ex}</div>
+      </div>
+    </div>`).join('');
+  // Pronunciation vocab list with speech synthesis
+  document.getElementById('pronVocabList').innerHTML = vocab.map((v,i)=>`
+    <div class="vrow" style="cursor:pointer" onclick="speakWord('${v.zh}')">
+      <div class="vzh">${v.zh}</div>
+      <div style="flex:1"><div class="vpy">${v.py}</div><div class="ven">${v.en}</div></div>
+      <div style="font-size:1rem;color:var(--mist)">🔊</div>
+    </div>`).join('');
+}
+function speakWord(text){
+  if(!('speechSynthesis' in window))return;
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='zh-CN'; u.rate=0.85;
+  // prefer a Chinese voice if available
+  const voices=window.speechSynthesis.getVoices();
+  const cn=voices.find(v=>v.lang==='zh-CN'||v.lang==='zh-TW'||v.lang.startsWith('zh'));
+  if(cn)u.voice=cn;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+// ═══════════════════════════════════
+// WORD LOOKUP
+// ═══════════════════════════════════
+function initLookup(){
+  document.getElementById('lookupCount').textContent = vocab.length;
+  renderLookup();
+}
+function renderLookup(){
+  const q=(document.getElementById('lookupInput').value||'').toLowerCase().trim();
+  const list = q
+    ? vocab.filter(v=>
+        v.en.toLowerCase().includes(q) ||
+        v.py.toLowerCase().includes(q) ||
+        v.zh.includes(q) ||
+        v.cat.toLowerCase().includes(q))
+    : vocab;
+  if(!list.length){
+    document.getElementById('lookupResults').innerHTML=`<div class="lookup-empty">No results for "${q}"</div>`;
+    return;
+  }
+  const hi = (str)=> q ? str.replace(new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi'), '<mark>$1</mark>') : str;
+  document.getElementById('lookupResults').innerHTML = list.map(v=>`
+    <div class="lookup-row" onclick="speakWord('${v.zh}')">
+      <div class="lookup-zh">${v.zh}</div>
+      <div style="flex:1">
+        <div class="lookup-py">${hi(v.py)}</div>
+        <div class="lookup-en">${hi(v.en)}</div>
+      </div>
+      <div class="lookup-cat">${v.cat}</div>
     </div>`).join('');
 }
 
