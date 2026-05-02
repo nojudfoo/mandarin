@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mandarin">
+<meta name="theme-color" content="#0f0a1a">
+<title>Mandarin Study</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0a1a;
+  --surface: #1a1228;
+  --raised: #241a36;
+  --border: rgba(255,255,255,0.07);
+  --gold: #e8b84b;
+  --gold-dim: rgba(232,184,75,0.15);
+  --red: #d64c3f;
+  --jade: #3d9970;
+  --mist: #7a8fa8;
+  --paper: #ede8df;
+  --correct: #3d9970;
+  --wrong: #d64c3f;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; overflow:hidden; }
+body {
+  font-family:'JetBrains Mono',monospace;
+  background:var(--bg);
+  color:var(--paper);
+  display:flex; flex-direction:column;
+  min-height:100vh; min-height:-webkit-fill-available;
+}
+
+/* ── HEADER ── */
+.hdr {
+  background:var(--bg);
+  padding-top:max(env(safe-area-inset-top),14px);
+  padding-left:16px; padding-right:16px;
+  border-bottom:1px solid var(--border);
+  flex-shrink:0; z-index:20;
+}
+.hdr-top { display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; }
+.logo { font-family:'Libre Baskerville',serif; font-size:1.15rem; color:var(--gold); letter-spacing:0.02em; }
+.logo small { font-family:'JetBrains Mono'; font-size:0.6rem; color:var(--mist); margin-left:8px; font-style:normal; letter-spacing:0.08em; }
+.streak { background:var(--raised); border:1px solid rgba(232,184,75,0.3); border-radius:20px; padding:4px 10px; font-size:0.65rem; color:var(--gold); }
+.tabs { display:flex; overflow-x:auto; scrollbar-width:none; gap:0; }
+.tabs::-webkit-scrollbar { display:none; }
+.tab { flex-shrink:0; padding:9px 13px; font-size:0.6rem; letter-spacing:0.09em; text-transform:uppercase; color:var(--mist); cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; white-space:nowrap; font-family:'JetBrains Mono'; }
+.tab.on { color:var(--gold); border-bottom-color:var(--gold); }
+
+/* ── MAIN ── */
+.main { flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; padding-bottom:max(env(safe-area-inset-bottom),20px); }
+.scr { display:none; padding:16px; }
+.scr.on { display:block; }
+
+/* ── DAILY NOTIFICATION OVERLAY ── */
+.notif-overlay {
+  position:fixed; inset:0; z-index:100;
+  background:rgba(15,10,26,0.96);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:24px; display:none;
+}
+.notif-overlay.show { display:flex; }
+.notif-card {
+  width:100%; max-width:380px;
+  background:var(--surface);
+  border:1px solid rgba(232,184,75,0.25);
+  border-radius:20px;
+  padding:28px 22px;
+  box-shadow:var(--shadow);
+}
+.notif-badge { font-size:0.58rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); margin-bottom:16px; }
+.notif-qnum { font-size:0.62rem; color:var(--mist); margin-bottom:8px; }
+.notif-question { font-family:'Libre Baskerville',serif; font-size:1.6rem; font-style:italic; color:var(--paper); margin-bottom:6px; line-height:1.3; }
+.notif-sub { font-size:0.75rem; color:var(--mist); margin-bottom:22px; }
+.notif-opts { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+.notif-opt {
+  background:var(--raised);
+  border:1px solid var(--border);
+  border-radius:12px; padding:13px 15px;
+  cursor:pointer; text-align:left; transition:all .15s;
+  color:var(--paper);
+}
+.notif-opt:active { transform:scale(0.98); }
+.notif-opt .op-main { font-size:0.88rem; font-style:italic; color:var(--gold); font-family:'Libre Baskerville',serif; }
+.notif-opt .op-en { font-size:0.68rem; color:var(--mist); margin-top:3px; }
+.notif-opt.correct { border-color:var(--correct); background:rgba(61,153,112,0.1); }
+.notif-opt.wrong { border-color:var(--wrong); background:rgba(214,76,63,0.08); }
+.notif-opt.reveal { border-color:var(--correct); background:rgba(61,153,112,0.06); }
+.notif-progress { display:flex; gap:6px; margin-bottom:20px; }
+.notif-dot { flex:1; height:3px; border-radius:3px; background:var(--border); transition:background .3s; }
+.notif-dot.done { background:var(--gold); }
+.notif-dot.active { background:rgba(232,184,75,0.45); }
+.notif-skip { width:100%; padding:11px; background:transparent; border:1px solid var(--border); border-radius:10px; color:var(--mist); font-family:'JetBrains Mono'; font-size:0.7rem; cursor:pointer; }
+
+/* ── BUTTONS ── */
+.btn { width:100%; padding:14px; background:var(--gold); color:var(--bg); border:none; border-radius:12px; font-family:'JetBrains Mono'; font-size:0.78rem; letter-spacing:0.07em; font-weight:500; cursor:pointer; transition:all .15s; margin-bottom:10px; }
+.btn:active { transform:scale(0.97); opacity:.9; }
+.btn.ghost { background:transparent; color:var(--mist); border:1px solid var(--border); }
+.btn.ghost:active { opacity:.7; }
+
+/* ── PILLS ── */
+.pills { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; padding-bottom:8px; margin-bottom:12px; }
+.pills::-webkit-scrollbar { display:none; }
+.pill { flex-shrink:0; padding:5px 12px; border-radius:20px; border:1px solid rgba(232,184,75,0.25); font-size:0.6rem; letter-spacing:0.07em; color:var(--mist); cursor:pointer; background:transparent; font-family:'JetBrains Mono'; white-space:nowrap; transition:all .15s; }
+.pill.on { background:var(--gold); color:var(--bg); border-color:var(--gold); }
+
+.lbl { font-size:0.58rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--mist); margin-bottom:10px; }
+.badge { display:inline-block; background:var(--gold-dim); color:var(--gold); border-radius:20px; padding:2px 8px; font-size:0.62rem; margin-left:6px; }
+
+/* ── HOME ── */
+.home-hero { text-align:center; padding:22px 0 16px; }
+.home-title { font-family:'Libre Baskerville',serif; font-size:1.7rem; color:var(--gold); font-style:italic; }
+.home-date { font-size:0.68rem; color:var(--mist); margin-top:4px; }
+.home-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+.htile { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 12px; text-align:center; cursor:pointer; transition:all .18s; }
+.htile:active { transform:scale(0.96); border-color:var(--gold); }
+.htile-icon { font-size:1.4rem; margin-bottom:6px; }
+.htile-n { font-size:1rem; color:var(--gold); font-family:'Libre Baskerville',serif; margin-bottom:2px; }
+.htile-lbl { font-size:0.6rem; letter-spacing:0.07em; text-transform:uppercase; color:var(--mist); }
+.prog-row { display:flex; justify-content:space-between; font-size:0.6rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--mist); margin-bottom:6px; }
+.prog-bar { height:4px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; margin-bottom:16px; }
+.prog-fill { height:100%; background:linear-gradient(90deg,var(--gold),var(--red)); border-radius:4px; transition:width .5s ease; }
+.install-note { background:var(--gold-dim); border:1px solid rgba(232,184,75,0.2); border-radius:12px; padding:12px 14px; margin-bottom:14px; font-size:0.68rem; color:var(--gold); line-height:1.6; }
+.daily-box { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:14px; }
+.daily-lbl { font-size:0.58rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--jade); margin-bottom:8px; }
+
+/* ── NOTIF SETTINGS ── */
+.nbox { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:15px; margin-bottom:14px; }
+.nbox-title { font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); margin-bottom:12px; }
+.nrow { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; font-size:0.7rem; color:var(--paper); }
+.toggle { width:40px; height:22px; background:rgba(255,255,255,0.1); border-radius:11px; position:relative; cursor:pointer; transition:background .2s; border:none; flex-shrink:0; }
+.toggle.on { background:var(--gold); }
+.toggle::after { content:''; position:absolute; width:16px; height:16px; background:white; border-radius:50%; top:3px; left:3px; transition:transform .2s; }
+.toggle.on::after { transform:translateX(18px); }
+.sel { background:rgba(255,255,255,0.05); border:1px solid rgba(232,184,75,0.25); border-radius:8px; color:var(--paper); font-family:'JetBrains Mono'; font-size:0.68rem; padding:5px 9px; }
+
+/* ── FLASHCARDS ── */
+.fc-meta { text-align:center; color:var(--mist); font-size:0.65rem; margin-bottom:12px; }
+.fc-wrap { perspective:1000px; cursor:pointer; margin-bottom:14px; }
+.fc { width:100%; min-height:200px; position:relative; transform-style:preserve-3d; transition:transform .5s cubic-bezier(.4,0,.2,1); }
+.fc.flipped { transform:rotateY(180deg); }
+.fc-face { position:absolute; width:100%; min-height:200px; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:18px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px 20px; border:1px solid var(--border); }
+.fc-face.front { background:var(--surface); }
+.fc-face.back { transform:rotateY(180deg); background:var(--raised); border-color:rgba(232,184,75,0.25); }
+.fc-py { font-family:'Libre Baskerville',serif; font-size:2rem; font-style:italic; color:var(--gold); margin-bottom:6px; text-align:center; }
+.fc-cat { font-size:0.56rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--mist); margin-bottom:10px; }
+.fc-hint { font-size:0.6rem; color:var(--mist); margin-top:12px; }
+.fc-zh { font-family:'Noto Serif SC',serif; font-size:3rem; color:var(--gold); margin-bottom:8px; }
+.fc-en { font-size:0.9rem; color:var(--paper); text-align:center; line-height:1.4; }
+.fc-btns { display:flex; gap:10px; margin-top:4px; }
+.fc-btn { flex:1; padding:12px; border:none; border-radius:10px; font-family:'JetBrains Mono'; font-size:0.7rem; cursor:pointer; transition:all .15s; }
+.fc-btn:active { transform:scale(0.95); }
+.fc-btn.again { background:rgba(214,76,63,0.12); color:var(--red); border:1px solid rgba(214,76,63,0.3); }
+.fc-btn.good { background:rgba(61,153,112,0.12); color:var(--correct); border:1px solid rgba(61,153,112,0.3); }
+.fc-btn.easy { background:var(--gold-dim); color:var(--gold); border:1px solid rgba(232,184,75,0.3); }
+
+/* ── WORD ORDER ── */
+.wo-prompt { font-family:'Libre Baskerville',serif; font-size:1rem; font-style:italic; color:var(--paper); text-align:center; margin:10px 0 6px; line-height:1.5; }
+.wo-drop { min-height:64px; background:rgba(255,255,255,0.03); border:2px dashed rgba(232,184,75,0.25); border-radius:14px; padding:10px 12px; display:flex; flex-wrap:wrap; gap:7px; align-items:center; margin-bottom:10px; transition:border-color .2s; }
+.wo-drop.ok { border-color:var(--correct); background:rgba(61,153,112,0.06); }
+.wo-drop.bad { border-color:var(--wrong); background:rgba(214,76,63,0.06); }
+.wo-tiles { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; min-height:40px; }
+.tile { background:var(--raised); color:var(--gold); border:1px solid rgba(232,184,75,0.25); border-radius:9px; padding:7px 13px; font-size:0.82rem; cursor:pointer; transition:all .14s; font-family:'Libre Baskerville',serif; font-style:italic; }
+.tile:active { transform:scale(0.93); }
+.tile.used { opacity:.25; pointer-events:none; }
+.tile.ans { background:var(--gold-dim); border-color:var(--gold); }
+.wo-res { text-align:center; padding:10px; border-radius:10px; font-size:0.76rem; margin-bottom:10px; display:none; line-height:1.6; }
+.wo-res.show { display:block; }
+.wo-res.ok { background:rgba(61,153,112,0.1); color:var(--correct); }
+.wo-res.bad { background:rgba(214,76,63,0.1); color:var(--wrong); }
+
+/* ── Q&A ── */
+.qa-q { font-family:'Libre Baskerville',serif; font-size:1.55rem; font-style:italic; text-align:center; color:var(--paper); margin:10px 0 3px; line-height:1.35; }
+.qa-sub { text-align:center; color:var(--mist); font-size:0.72rem; margin-bottom:18px; }
+.qa-opts { display:flex; flex-direction:column; gap:9px; margin-bottom:14px; }
+.qa-opt { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:13px 15px; text-align:left; cursor:pointer; transition:all .14s; color:var(--paper); }
+.qa-opt:active { transform:scale(0.98); }
+.qa-opt .om { font-size:0.88rem; font-style:italic; color:var(--gold); font-family:'Libre Baskerville',serif; }
+.qa-opt .oe { font-size:0.68rem; color:var(--mist); margin-top:3px; }
+.qa-opt.correct { border-color:var(--correct); background:rgba(61,153,112,0.09); }
+.qa-opt.wrong { border-color:var(--wrong); background:rgba(214,76,63,0.09); }
+.qa-opt.reveal { border-color:var(--correct); background:rgba(61,153,112,0.05); }
+
+/* ── CHARACTERS ── */
+.cm-tabs { display:flex; gap:8px; margin-bottom:16px; }
+.cm-tab { flex:1; padding:10px; background:var(--surface); border:1px solid var(--border); border-radius:10px; text-align:center; cursor:pointer; font-size:0.65rem; letter-spacing:0.06em; text-transform:uppercase; color:var(--mist); transition:all .15s; }
+.cm-tab.on { background:var(--gold-dim); border-color:var(--gold); color:var(--gold); }
+.cq-prompt { text-align:center; margin:10px 0 18px; }
+.cq-py { font-family:'Libre Baskerville',serif; font-size:2rem; font-style:italic; color:var(--gold); margin-bottom:4px; }
+.cq-en { font-size:0.76rem; color:var(--mist); }
+.cq-opts { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
+.cq-opt { background:var(--surface); border:2px solid var(--border); border-radius:14px; padding:18px 10px; text-align:center; cursor:pointer; transition:all .15s; }
+.cq-opt:active { transform:scale(0.95); }
+.cq-opt .cz { font-family:'Noto Serif SC',serif; font-size:2.3rem; color:var(--paper); display:block; margin-bottom:4px; }
+.cq-opt .cp { font-size:0.6rem; color:var(--mist); }
+.cq-opt.correct { border-color:var(--correct); background:rgba(61,153,112,0.09); }
+.cq-opt.wrong { border-color:var(--wrong); background:rgba(214,76,63,0.09); }
+.cq-opt.reveal { border-color:var(--correct); background:rgba(61,153,112,0.06); }
+/* Tracing */
+.tr-meta { text-align:center; margin-bottom:14px; }
+.tr-py { font-family:'Libre Baskerville',serif; font-size:1.4rem; font-style:italic; color:var(--gold); }
+.tr-en { font-size:0.72rem; color:var(--mist); margin-top:2px; }
+.tr-wrap { position:relative; margin:0 auto 12px; }
+.tr-guide { font-family:'Noto Serif SC',serif; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; color:rgba(232,184,75,0.1); line-height:1; }
+.tr-ctrl { display:flex; gap:10px; margin-bottom:10px; }
+.tr-ctrl button { flex:1; padding:11px; border-radius:10px; border:1px solid var(--border); background:var(--surface); color:var(--mist); font-family:'JetBrains Mono'; font-size:0.7rem; cursor:pointer; transition:all .15s; }
+.tr-ctrl button:active { transform:scale(0.96); }
+.tr-nav { display:flex; gap:10px; }
+.tr-nav button { flex:1; padding:10px; border-radius:10px; border:1px solid var(--border); background:transparent; color:var(--mist); font-family:'JetBrains Mono'; font-size:0.68rem; cursor:pointer; }
+
+/* ── VOCAB ── */
+.vrow { display:flex; align-items:center; padding:11px 0; border-bottom:1px solid var(--border); gap:12px; }
+.vzh { font-family:'Noto Serif SC',serif; font-size:1.3rem; color:var(--paper); min-width:48px; }
+.vpy { font-size:0.76rem; color:var(--gold); font-style:italic; font-family:'Libre Baskerville',serif; }
+.ven { font-size:0.7rem; color:var(--mist); }
+.vcat { font-size:0.55rem; background:var(--gold-dim); color:var(--gold); border-radius:8px; padding:2px 7px; white-space:nowrap; flex-shrink:0; }
+
+/* ── PATTERNS ── */
+.pc { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px; margin-bottom:12px; }
+.pp { font-family:'Libre Baskerville',serif; font-size:1.05rem; font-style:italic; color:var(--gold); margin-bottom:3px; }
+.pen { font-size:0.75rem; color:var(--mist); margin-bottom:6px; }
+.pst { font-size:0.62rem; background:var(--gold-dim); color:var(--gold); border-radius:6px; padding:3px 8px; display:inline-block; margin-bottom:10px; }
+.pex { border-top:1px solid var(--border); padding-top:10px; }
+.prow { margin-bottom:8px; }
+.ppy { font-size:0.85rem; color:var(--gold); font-style:italic; font-family:'Libre Baskerville',serif; }
+.pzh { font-family:'Noto Serif SC',serif; font-size:0.82rem; color:rgba(255,255,255,0.6); }
+.pen2 { font-size:0.67rem; color:var(--mist); }
+</style>
+</head>
+<body>
+
+<!-- ══ DAILY QUIZ OVERLAY ══ -->
+<div class="notif-overlay" id="dailyOverlay">
+  <div class="notif-card">
+    <div class="notif-badge">📖 Daily Review — <span id="dqDate">—</span></div>
+    <div class="notif-progress" id="dqDots"></div>
+    <div class="notif-qnum" id="dqNum">Question 1 of 4</div>
+    <div class="notif-question" id="dqQ">—</div>
+    <div class="notif-sub" id="dqSub">—</div>
+    <div class="notif-opts" id="dqOpts"></div>
+    <button class="notif-skip" onclick="closeDailyQuiz()">Skip — go to app</button>
+  </div>
+</div>
+
+<!-- ══ HEADER ══ -->
+<div class="hdr">
+  <div class="hdr-top">
+    <div class="logo">Mandarin Study <small>汉语学习</small></div>
+    <div class="streak">🔥 <span id="streakN">0</span>d</div>
+  </div>
+  <nav class="tabs">
+    <div class="tab on"  onclick="go('home')">Home</div>
+    <div class="tab" onclick="go('flashcards')">Flashcards</div>
+    <div class="tab" onclick="go('wordorder')">Word Order</div>
+    <div class="tab" onclick="go('qa')">Q &amp; A</div>
+    <div class="tab" onclick="go('characters')">Characters</div>
+    <div class="tab" onclick="go('patterns')">Patterns</div>
+    <div class="tab" onclick="go('vocab')">Vocab</div>
+  </nav>
+</div>
+
+<div class="main">
+
+<!-- HOME -->
+<div class="scr on" id="scr-home">
+  <div class="home-hero">
+    <div class="home-title">Good day!</div>
+    <div class="home-date" id="homeDate">—</div>
+  </div>
+  <div id="installNote" class="install-note" style="display:none">
+    <strong>📱 Add to Home Screen for notifications</strong><br>
+    Safari → Share (□↑) → "Add to Home Screen" → Open from your home screen
+  </div>
+  <div class="prog-row"><span>Session Progress</span><span id="progPct">0%</span></div>
+  <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  <div class="home-grid">
+    <div class="htile" onclick="go('flashcards')"><div class="htile-icon">📇</div><div class="htile-n" id="htn1">—</div><div class="htile-lbl">Flashcards</div></div>
+    <div class="htile" onclick="go('wordorder')"><div class="htile-icon">🔀</div><div class="htile-n">10</div><div class="htile-lbl">Word Order</div></div>
+    <div class="htile" onclick="go('qa')"><div class="htile-icon">💬</div><div class="htile-n">10</div><div class="htile-lbl">Q &amp; A</div></div>
+    <div class="htile" onclick="go('characters')"><div class="htile-icon">✍️</div><div class="htile-n" id="htn4">—</div><div class="htile-lbl">Characters</div></div>
+  </div>
+  <div class="lbl">Daily Challenge</div>
+  <div class="daily-box" id="dailyBox">—</div>
+  <div class="nbox">
+    <div class="nbox-title">Daily Notifications — 8 PM Review</div>
+    <div class="nrow"><span>Enable daily quiz notification</span><button class="toggle" id="notifTog" onclick="toggleNotif()"></button></div>
+    <div class="nrow"><span>Notification time</span><input type="time" value="20:00" id="notifTime" class="sel" onchange="saveNotifPrefs()"></div>
+    <button class="btn" style="margin-top:8px" onclick="launchDailyQuiz(true)">Preview Today's Quiz</button>
+    <button class="btn ghost" onclick="testNotif()">Send Test Notification</button>
+    <div id="notifStatus" style="font-size:0.62rem;color:var(--mist);line-height:1.6;margin-top:4px">Add to Home Screen first, then enable.</div>
+  </div>
+</div>
+
+<!-- FLASHCARDS -->
+<div class="scr" id="scr-flashcards">
+  <div class="lbl">Flashcards — Pinyin front · Character + English back</div>
+  <div class="pills" id="fcPills"></div>
+  <div class="fc-meta">Card <span id="fcN">1</span> of <span id="fcOf">1</span> <span class="badge" id="fcScore">0 ✓</span></div>
+  <div class="fc-wrap" onclick="flipFC()">
+    <div class="fc" id="theFC">
+      <div class="fc-face front"><div class="fc-cat" id="fcCat">—</div><div class="fc-py" id="fcPy">—</div><div class="fc-hint">tap to reveal</div></div>
+      <div class="fc-face back"><div class="fc-zh" id="fcZh">—</div><div class="fc-en" id="fcEn">—</div></div>
+    </div>
+  </div>
+  <div class="fc-btns" id="fcBtns" style="display:none">
+    <button class="fc-btn again" onclick="rateFC('again')">Again</button>
+    <button class="fc-btn good" onclick="rateFC('good')">Good</button>
+    <button class="fc-btn easy" onclick="rateFC('easy')">Easy</button>
+  </div>
+  <button class="btn ghost" style="margin-top:10px" onclick="initFC()">↻ Shuffle</button>
+</div>
+
+<!-- WORD ORDER -->
+<div class="scr" id="scr-wordorder">
+  <div class="lbl">Word Order <span class="badge" id="woScore">0/0</span></div>
+  <div class="wo-prompt" id="woPrompt">—</div>
+  <div style="font-size:0.6rem;color:var(--mist);text-align:center;margin-bottom:8px">Tap pinyin tiles to build the sentence</div>
+  <div class="wo-drop" id="woDrop"></div>
+  <div class="wo-tiles" id="woTiles"></div>
+  <div class="wo-res" id="woRes"></div>
+  <button class="btn" id="woCheckBtn" onclick="checkWO()">Check Answer</button>
+  <button class="btn ghost" onclick="nextWO()">Next Question →</button>
+</div>
+
+<!-- Q&A -->
+<div class="scr" id="scr-qa">
+  <div class="lbl">Q &amp; A Practice <span class="badge" id="qaScore">0/0</span></div>
+  <div class="qa-q" id="qaQ">—</div>
+  <div class="qa-sub" id="qaEn">—</div>
+  <div class="qa-opts" id="qaOpts"></div>
+  <button class="btn ghost" onclick="nextQA()">Next Question →</button>
+</div>
+
+<!-- CHARACTERS -->
+<div class="scr" id="scr-characters">
+  <div class="lbl">Characters</div>
+  <div class="cm-tabs">
+    <div class="cm-tab on" id="cmt0" onclick="setCM(0)">📖 Recognition</div>
+    <div class="cm-tab" id="cmt1" onclick="setCM(1)">✍️ Tracing</div>
+  </div>
+  <div id="cqPanel">
+    <div class="lbl">Pinyin shown → pick the correct character</div>
+    <div class="pills" id="cqPills"></div>
+    <div style="text-align:right;margin-bottom:8px"><span class="badge" id="cqScore">0/0</span></div>
+    <div class="cq-prompt"><div class="cq-py" id="cqPy">—</div><div class="cq-en" id="cqEn">—</div></div>
+    <div class="cq-opts" id="cqOpts"></div>
+    <button class="btn ghost" onclick="nextCQ()">Next →</button>
+  </div>
+  <div id="trPanel" style="display:none">
+    <div class="lbl">Trace the character · follow the guide</div>
+    <div class="pills" id="trPills"></div>
+    <div style="text-align:center;font-size:0.62rem;color:var(--mist);margin-bottom:8px" id="trProg">—</div>
+    <div class="tr-meta"><div class="tr-py" id="trPy">—</div><div class="tr-en" id="trEn">—</div></div>
+    <div class="tr-wrap" id="trWrap">
+      <canvas id="trCanvas" style="background:var(--surface);border-radius:14px;display:block;width:100%"></canvas>
+      <div class="tr-guide" id="trGuide">—</div>
+    </div>
+    <div class="tr-ctrl">
+      <button onclick="clearTrace()">🗑 Clear</button>
+      <button onclick="toggleGuide()" id="guideBtn">👁 Show Guide</button>
+    </div>
+    <div class="tr-nav">
+      <button onclick="prevTr()">← Prev</button>
+      <button onclick="nextTr()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- PATTERNS -->
+<div class="scr" id="scr-patterns">
+  <div class="lbl">Sentence Patterns</div>
+  <div id="patList"></div>
+</div>
+
+<!-- VOCAB -->
+<div class="scr" id="scr-vocab">
+  <div class="lbl">All Vocabulary <span class="badge" id="vcTotal">—</span></div>
+  <div class="pills" id="vcPills"></div>
+  <div id="vcList"></div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════
+// VOCAB DATA — Sessions + Textbook
+// ═══════════════════════════════════
+const vocab = [
+  // PRONOUNS
+  {zh:"我",py:"wǒ",en:"I / me",cat:"Pronouns",week:1},
+  {zh:"你",py:"nǐ",en:"you",cat:"Pronouns",week:1},
+  {zh:"他",py:"tā",en:"he / him",cat:"Pronouns",week:1},
+  {zh:"她",py:"tā",en:"she / her",cat:"Pronouns",week:1},
+  {zh:"我们",py:"wǒmen",en:"we / us",cat:"Pronouns",week:1},
+  // CORE VERBS – Week 1-2
+  {zh:"是",py:"shì",en:"to be (=)",cat:"Verbs",week:1},
+  {zh:"叫",py:"jiào",en:"to be called / named",cat:"Verbs",week:1},
+  {zh:"认识",py:"rènshi",en:"to know (a person)",cat:"Verbs",week:1},
+  {zh:"吃",py:"chī",en:"to eat",cat:"Verbs",week:2},
+  {zh:"喝",py:"hē",en:"to drink",cat:"Verbs",week:2},
+  {zh:"去",py:"qù",en:"to go",cat:"Verbs",week:2},
+  {zh:"买",py:"mǎi",en:"to buy",cat:"Verbs",week:2},
+  {zh:"想",py:"xiǎng",en:"to want / would like",cat:"Verbs",week:2},
+  {zh:"要",py:"yào",en:"to want (decided) / to order",cat:"Verbs",week:2},
+  {zh:"喜欢",py:"xǐhuān",en:"to like",cat:"Verbs",week:2},
+  {zh:"有",py:"yǒu",en:"to have / there is",cat:"Verbs",week:2},
+  // NEW VERBS – Week 3
+  {zh:"会",py:"huì",en:"can / be able to (through learning)",cat:"Verbs",week:3},
+  {zh:"说",py:"shuō",en:"to speak",cat:"Verbs",week:3},
+  {zh:"做",py:"zuò",en:"to make / do / produce",cat:"Verbs",week:3},
+  {zh:"读",py:"dú",en:"to read (characters)",cat:"Verbs",week:3},
+  {zh:"走",py:"zǒu",en:"to go (casual form)",cat:"Verbs",week:3},
+  // ADJECTIVES
+  {zh:"好",py:"hǎo",en:"good",cat:"Adjectives",week:1},
+  {zh:"很",py:"hěn",en:"very (intensifier)",cat:"Adjectives",week:1},
+  {zh:"好吃",py:"hǎochī",en:"delicious (food)",cat:"Adjectives",week:2},
+  {zh:"好喝",py:"hǎohē",en:"delicious (drink)",cat:"Adjectives",week:2},
+  {zh:"很好吃",py:"hěn hǎo chī",en:"really delicious (strongly like)",cat:"Adjectives",week:3},
+  // QUESTION WORDS
+  {zh:"什么",py:"shénme",en:"what",cat:"Questions",week:2},
+  {zh:"哪里",py:"nǎlǐ",en:"where",cat:"Questions",week:2},
+  {zh:"几",py:"jǐ",en:"how many (under 10)",cat:"Questions",week:2},
+  {zh:"多少",py:"duōshao",en:"how many / much (10+)",cat:"Questions",week:2},
+  {zh:"吗",py:"ma",en:"question particle (yes/no)",cat:"Questions",week:1},
+  {zh:"怎么",py:"zěnme",en:"how to (do something)",cat:"Questions",week:3},
+  // NUMBERS
+  {zh:"一",py:"yī",en:"one",cat:"Numbers",week:1},
+  {zh:"二",py:"èr",en:"two (counting / ordinal)",cat:"Numbers",week:1},
+  {zh:"两",py:"liǎng",en:"two (with measure words)",cat:"Numbers",week:2},
+  {zh:"三",py:"sān",en:"three",cat:"Numbers",week:1},
+  {zh:"四",py:"sì",en:"four",cat:"Numbers",week:1},
+  {zh:"五",py:"wǔ",en:"five",cat:"Numbers",week:1},
+  {zh:"六",py:"liù",en:"six",cat:"Numbers",week:1},
+  {zh:"七",py:"qī",en:"seven",cat:"Numbers",week:1},
+  {zh:"八",py:"bā",en:"eight",cat:"Numbers",week:1},
+  {zh:"九",py:"jiǔ",en:"nine",cat:"Numbers",week:1},
+  {zh:"十",py:"shí",en:"ten",cat:"Numbers",week:1},
+  {zh:"零",py:"líng",en:"zero",cat:"Numbers",week:1},
+  // MEASURE WORDS
+  {zh:"杯",py:"bēi",en:"cup of (measure word)",cat:"Measure Words",week:2},
+  {zh:"杯子",py:"bēizi",en:"cup (the item)",cat:"Measure Words",week:2},
+  {zh:"个",py:"gè",en:"general measure word",cat:"Measure Words",week:2},
+  // FOOD & DRINK
+  {zh:"咖啡",py:"kāfēi",en:"coffee",cat:"Food & Drink",week:2},
+  {zh:"茶",py:"chá",en:"tea",cat:"Food & Drink",week:2},
+  {zh:"苹果",py:"píngguǒ",en:"apple",cat:"Food & Drink",week:2},
+  {zh:"米饭",py:"mǐfàn",en:"rice",cat:"Food & Drink",week:2},
+  {zh:"北京烤鸭",py:"Běijīng kǎoyā",en:"Peking duck",cat:"Food & Drink",week:2},
+  {zh:"菜",py:"cài",en:"dish / food",cat:"Food & Drink",week:3},
+  {zh:"水",py:"shuǐ",en:"water",cat:"Food & Drink",week:3},
+  {zh:"做菜",py:"zuò cài",en:"to cook (make a dish)",cat:"Food & Drink",week:3},
+  // CLOTHING
+  {zh:"衬衫",py:"chènshān",en:"shirt",cat:"Clothing",week:2},
+  // PLACES
+  {zh:"饭店",py:"fàndiàn",en:"restaurant",cat:"Places",week:2},
+  {zh:"商店",py:"shāngdiàn",en:"shop / store",cat:"Places",week:2},
+  {zh:"星巴克",py:"Xīngbākè",en:"Starbucks",cat:"Places",week:2},
+  {zh:"瑞幸",py:"Ruìxìng",en:"Luckin Coffee",cat:"Places",week:2},
+  // BUSINESS
+  {zh:"商人",py:"shāngrén",en:"businessman",cat:"Business",week:2},
+  // TIME
+  {zh:"早上",py:"zǎoshang",en:"early morning",cat:"Time",week:2},
+  {zh:"上午",py:"shàngwǔ",en:"late morning",cat:"Time",week:2},
+  {zh:"中午",py:"zhōngwǔ",en:"noon",cat:"Time",week:2},
+  {zh:"下午",py:"xiàwǔ",en:"afternoon",cat:"Time",week:2},
+  {zh:"晚上",py:"wǎnshang",en:"evening / night",cat:"Time",week:2},
+  {zh:"今天",py:"jīntiān",en:"today",cat:"Time",week:2},
+  // GREETINGS
+  {zh:"你好",py:"nǐ hǎo",en:"hello",cat:"Greetings",week:1},
+  {zh:"高兴",py:"gāoxìng",en:"happy / pleased",cat:"Greetings",week:1},
+  {zh:"晚上好",py:"wǎnshang hǎo",en:"good evening",cat:"Greetings",week:2},
+  {zh:"晚安",py:"wǎn'ān",en:"good night",cat:"Greetings",week:2},
+  // NEGATION
+  {zh:"不",py:"bù",en:"not / no",cat:"Negation",week:1},
+  {zh:"没",py:"méi",en:"not have / didn't",cat:"Negation",week:1},
+  // IDENTITY
+  {zh:"名字",py:"míngzì",en:"name",cat:"Identity",week:1},
+  // LANGUAGES – Week 3
+  {zh:"法语",py:"fǎyǔ",en:"French (language)",cat:"Languages",week:3},
+  {zh:"汉语",py:"hànyǔ",en:"Mandarin Chinese",cat:"Languages",week:3},
+  {zh:"英语",py:"yīngyǔ",en:"English (language)",cat:"Languages",week:3},
+  {zh:"语",py:"yǔ",en:"language",cat:"Languages",week:3},
+  {zh:"汉字",py:"hànzì",en:"Chinese character",cat:"Languages",week:3},
+  // COUNTRIES – Week 3
+  {zh:"中国",py:"Zhōngguó",en:"China",cat:"Countries",week:3},
+  {zh:"美国",py:"Měiguó",en:"USA",cat:"Countries",week:3},
+  {zh:"国",py:"guó",en:"country",cat:"Countries",week:3},
+  {zh:"美国人",py:"Měiguórén",en:"American person",cat:"Countries",week:3},
+  {zh:"中国人",py:"Zhōngguórén",en:"Chinese person",cat:"Countries",week:3},
+  // CONNECTORS – Week 3
+  {zh:"但是",py:"dànshì",en:"but",cat:"Connectors",week:3},
+  {zh:"这个",py:"zhège",en:"this",cat:"Connectors",week:3},
+  // PEOPLE – Week 3
+  {zh:"老师",py:"lǎoshī",en:"teacher",cat:"People",week:3},
+];
+
+const patterns = [
+  {pat:"Nǐ jiào shénme?",en:"What are you called?",struct:"你 + 叫 + 什么？",week:1,
+   ex:[{py:"Nǐ jiào shénme míngzì?",zh:"你叫什么名字？",en:"What is your name?"},
+       {py:"Wǒ jiào Mǎtè.",zh:"我叫马特。",en:"My name is Matt."}]},
+  {pat:"Subject + hěn + Adjective",en:"Subject is very [adj]",struct:"我很好。",week:1,
+   ex:[{py:"Wǒ hěn hǎo.",zh:"我很好。",en:"I am good."},
+       {py:"Kāfēi hěn hǎohē.",zh:"咖啡很好喝。",en:"Coffee is very delicious."}]},
+  {pat:"Statement + ma?",en:"Yes/No question: add 吗 to end",struct:"Statement + 吗？",week:1,
+   ex:[{py:"Nǐ hǎo ma?",zh:"你好吗？",en:"Are you well?"},
+       {py:"Kāfēi hǎohē ma?",zh:"咖啡好喝吗？",en:"Is coffee delicious?"}]},
+  {pat:"Subject + bù + Verb/Adj",en:"Negation: not / don't",struct:"我不认识你。",week:1,
+   ex:[{py:"Wǒ bù rènshi nǐ.",zh:"我不认识你。",en:"I don't know you."},
+       {py:"Kāfēi bù hǎohē.",zh:"咖啡不好喝。",en:"Coffee is not delicious."}]},
+  {pat:"Nǐ xiǎng… shénme?",en:"What do you want to…?",struct:"你 + 想 + Verb + 什么？",week:2,
+   ex:[{py:"Nǐ xiǎng chī shénme?",zh:"你想吃什么？",en:"What do you want to eat?"},
+       {py:"Wǒ xiǎng hē kāfēi.",zh:"我想喝咖啡。",en:"I want to drink coffee."}]},
+  {pat:"Nǐ xiǎng qù nǎlǐ…?",en:"Where do you want to go to…?",struct:"你+想+去+哪里+Verb+Object",week:2,
+   ex:[{py:"Nǐ xiǎng qù nǎlǐ hē kāfēi?",zh:"你想去哪里喝咖啡？",en:"Where do you want to drink coffee?"},
+       {py:"Wǒ xiǎng qù Xīngbākè hē kāfēi.",zh:"我想去星巴克喝咖啡。",en:"I want to go to Starbucks."}]},
+  {pat:"jǐ vs duōshao",en:"几 = under 10 · 多少 = 10 or more",struct:"Nǐ xiǎng hē jǐ bēi kāfēi?",week:2,
+   ex:[{py:"Nǐ xiǎng hē jǐ bēi kāfēi?",zh:"你想喝几杯咖啡？",en:"How many cups do you want?"},
+       {py:"Wǒ xiǎng hē liǎng bēi kāfēi.",zh:"我想喝两杯咖啡。",en:"I want two cups of coffee."}]},
+  {pat:"Huì + Verb",en:"Can / be able to (through learning)",struct:"我会说法语。",week:3,
+   ex:[{py:"Wǒ huì shuō fǎyǔ.",zh:"我会说法语。",en:"I can speak French."},
+       {py:"Wǒ bù huì shuō hànyǔ.",zh:"我不会说汉语。",en:"I cannot speak Mandarin."},
+       {py:"Nǐ huì shuō fǎyǔ ma?",zh:"你会说法语吗？",en:"Can you speak French?"}]},
+  {pat:"Noun + zěnme + Verb?",en:"How to do something",struct:"这个汉字怎么读？",week:3,
+   ex:[{py:"Zhège hànzì zěnme dú?",zh:"这个汉字怎么读？",en:"How do you read this character?"},
+       {py:"Zhège cài zěnme zuò?",zh:"这个菜怎么做？",en:"How do you make this dish?"},
+       {py:"Zhège fàndiàn zěnme zǒu?",zh:"这个饭店怎么走？",en:"How do you get to this restaurant?"}]},
+  {pat:"…dànshì…",en:"But (joining two clauses)",struct:"…但是…",week:3,
+   ex:[{py:"Wǒ bù huì zuò Zhōngguó cài, dànshì wǒ huì chī.",zh:"我不会做中国菜，但是我会吃。",en:"I can't cook Chinese food, but I can eat it."}]},
+];
+
+const woExercises = [
+  {en:"I want to drink coffee.",tiles:["wǒ","xiǎng","hē","kāfēi","。"],ans:"wǒ xiǎng hē kāfēi 。",py:"Wǒ xiǎng hē kāfēi.",week:2},
+  {en:"What do you want to eat?",tiles:["nǐ","xiǎng","chī","shénme","？"],ans:"nǐ xiǎng chī shénme ？",py:"Nǐ xiǎng chī shénme?",week:2},
+  {en:"Where do you want to go drink coffee?",tiles:["nǐ","xiǎng","qù","nǎlǐ","hē","kāfēi","？"],ans:"nǐ xiǎng qù nǎlǐ hē kāfēi ？",py:"Nǐ xiǎng qù nǎlǐ hē kāfēi?",week:2},
+  {en:"I want to go to Starbucks to drink coffee.",tiles:["wǒ","xiǎng","qù","Xīngbākè","hē","kāfēi","。"],ans:"wǒ xiǎng qù Xīngbākè hē kāfēi 。",py:"Wǒ xiǎng qù Xīngbākè hē kāfēi.",week:2},
+  {en:"How many cups of coffee do you want?",tiles:["nǐ","xiǎng","hē","jǐ","bēi","kāfēi","？"],ans:"nǐ xiǎng hē jǐ bēi kāfēi ？",py:"Nǐ xiǎng hē jǐ bēi kāfēi?",week:2},
+  {en:"I want to drink two cups of coffee.",tiles:["wǒ","xiǎng","hē","liǎng","bēi","kāfēi","。"],ans:"wǒ xiǎng hē liǎng bēi kāfēi 。",py:"Wǒ xiǎng hē liǎng bēi kāfēi.",week:2},
+  {en:"Can you speak French?",tiles:["nǐ","huì","shuō","fǎyǔ","ma","？"],ans:"nǐ huì shuō fǎyǔ ma ？",py:"Nǐ huì shuō fǎyǔ ma?",week:3},
+  {en:"I cannot speak Mandarin.",tiles:["wǒ","bù","huì","shuō","hànyǔ","。"],ans:"wǒ bù huì shuō hànyǔ 。",py:"Wǒ bù huì shuō hànyǔ.",week:3},
+  {en:"How do you read this character?",tiles:["zhège","hànzì","zěnme","dú","？"],ans:"zhège hànzì zěnme dú ？",py:"Zhège hànzì zěnme dú?",week:3},
+  {en:"I can't cook Chinese food but I can eat it.",tiles:["wǒ","bù huì","zuò","Zhōngguó cài","dànshì","wǒ","huì","chī","。"],ans:"wǒ bù huì zuò Zhōngguó cài dànshì wǒ huì chī 。",py:"Wǒ bù huì zuò Zhōngguó cài, dànshì wǒ huì chī.",week:3},
+];
+
+const qaExercises = [
+  {q:"Nǐ hǎo ma?",en:"How are you?",week:1,
+   ans:[{py:"Wǒ hěn hǎo.",en:"I am very good."},{py:"Wǒ bù hǎo.",en:"I am not good."}]},
+  {q:"Nǐ jiào shénme míngzì?",en:"What is your name?",week:1,
+   ans:[{py:"Wǒ jiào Mǎtè.",en:"My name is Matt."}]},
+  {q:"Kāfēi hǎohē ma?",en:"Is coffee delicious?",week:2,
+   ans:[{py:"Hǎohē.",en:"Yes, it's delicious."},{py:"Bù hǎohē.",en:"No, it's not."}]},
+  {q:"Nǐ xiǎng hē shénme?",en:"What do you want to drink?",week:2,
+   ans:[{py:"Wǒ xiǎng hē kāfēi.",en:"I want coffee."},{py:"Wǒ xiǎng hē chá.",en:"I want tea."}]},
+  {q:"Nǐ xiǎng qù nǎlǐ hē kāfēi?",en:"Where do you want to go drink coffee?",week:2,
+   ans:[{py:"Wǒ xiǎng qù Xīngbākè hē kāfēi.",en:"I want to go to Starbucks."}]},
+  {q:"Nǐ xiǎng hē jǐ bēi kāfēi?",en:"How many cups of coffee do you want?",week:2,
+   ans:[{py:"Wǒ xiǎng hē liǎng bēi kāfēi.",en:"I want two cups."},{py:"Wǒ xiǎng hē yī bēi kāfēi.",en:"I want one cup."}]},
+  {q:"Nǐ huì shuō fǎyǔ ma?",en:"Can you speak French?",week:3,
+   ans:[{py:"Wǒ huì shuō fǎyǔ.",en:"Yes, I can speak French."},{py:"Wǒ bù huì shuō fǎyǔ.",en:"No, I can't speak French."}]},
+  {q:"Nǐ huì zuò Zhōngguó cài ma?",en:"Can you cook Chinese food?",week:3,
+   ans:[{py:"Wǒ bù huì zuò Zhōngguó cài.",en:"I can't cook Chinese food."},{py:"Wǒ huì zuò Zhōngguó cài.",en:"I can cook Chinese food."}]},
+  {q:"Zhège hànzì zěnme dú?",en:"How do you read this character?",week:3,
+   ans:[{py:"Wǒ bù huì dú zhège hànzì.",en:"I can't read this character."}]},
+  {q:"Nǐ jīntiān xiàwǔ xiǎng qù nǎlǐ?",en:"Where do you want to go this afternoon?",week:2,
+   ans:[{py:"Wǒ jīntiān xiàwǔ xiǎng qù Xīngbākè.",en:"I want to go to Starbucks this afternoon."}]},
+];
+
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+const S = {
+  streak:0, lastVisit:'',
+  fcDeck:[], fcIdx:0, fcFlipped:false, fcCorrect:0, fcCat:'All',
+  woIdx:0, woAns:[], woChecked:false, woCorrect:0, woTotal:0,
+  qaIdx:0, qaAnswered:false, qaCorrect:0, qaTotal:0,
+  cqPool:[], cqIdx:0, cqCorrect:0, cqTotal:0, cqAnswered:false, cqCat:'All',
+  trPool:[], trIdx:0, traceCat:'All', trGuide:false, drawing:false, lx:0, ly:0,
+  vcCat:'All',
+  notifEnabled:false, notifTime:'20:00',
+  prog:0, progTotal:25,
+  dqQuestions:[], dqIdx:0, dqAnswered:false,
+};
+
+// ═══════════════════════════════════
+// BOOT
+// ═══════════════════════════════════
+window.addEventListener('load', () => {
+  loadS();
+  updateStreak();
+  renderHome();
+  buildPills('fcPills', v=>v.cat, setFCCat, 'All');
+  buildPills('cqPills', v=>v.cat, setCQCat, 'All');
+  buildPills('trPills', v=>v.cat, setTrCat, 'All');
+  buildPills('vcPills', v=>v.cat, setVCCat, 'All');
+  initFC(); initWO(); initQA(); initCQ(); initTr();
+  renderPatterns(); renderVC();
+  checkInstall();
+  setupTraceDrawing();
+  scheduleNotif();
+  // Check if launched from notification deep-link
+  if (location.search.includes('quiz=1')) { setTimeout(()=>launchDailyQuiz(false), 500); }
+});
+
+function loadS() {
+  try {
+    const d = JSON.parse(localStorage.getItem('mand_v3')||'{}');
+    Object.assign(S, {
+      streak: d.streak||0, lastVisit: d.lastVisit||'',
+      notifEnabled: d.notifEnabled||false, notifTime: d.notifTime||'20:00',
+    });
+  } catch(e) {}
+  document.getElementById('notifTime').value = S.notifTime;
+  if (S.notifEnabled) document.getElementById('notifTog').classList.add('on');
+}
+function saveS() {
+  try { localStorage.setItem('mand_v3', JSON.stringify({streak:S.streak,lastVisit:S.lastVisit,notifEnabled:S.notifEnabled,notifTime:S.notifTime})); } catch(e) {}
+}
+function updateStreak() {
+  const today = new Date().toDateString();
+  if (!S.lastVisit) { S.streak=1; }
+  else if (S.lastVisit !== today) {
+    const diff = (new Date(today)-new Date(S.lastVisit))/86400000;
+    S.streak = diff===1 ? S.streak+1 : 1;
+  }
+  S.lastVisit=today; saveS();
+  document.getElementById('streakN').textContent = S.streak;
+}
+function checkInstall() {
+  const sa = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  if (!sa) document.getElementById('installNote').style.display='block';
+}
+
+// ═══════════════════════════════════
+// TAB
+// ═══════════════════════════════════
+function go(t) {
+  const ts=['home','flashcards','wordorder','qa','characters','patterns','vocab'];
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('on',ts[i]===t));
+  document.querySelectorAll('.scr').forEach(el=>el.classList.remove('on'));
+  document.getElementById('scr-'+t).classList.add('on');
+  document.querySelector('.main').scrollTop=0;
+}
+
+// ═══════════════════════════════════
+// PILLS
+// ═══════════════════════════════════
+function buildPills(id, catFn, cb, active) {
+  const cats=['All',...new Set(vocab.map(catFn))];
+  document.getElementById(id).innerHTML = cats.map(c=>
+    `<button class="pill ${c===active?'on':''}" onclick="${cb.name}('${c}','${id}')">${c}</button>`
+  ).join('');
+}
+function activatePill(cat, pid) {
+  document.querySelectorAll('#'+pid+' .pill').forEach(p=>p.classList.toggle('on', p.textContent===cat));
+}
+
+// ═══════════════════════════════════
+// HOME
+// ═══════════════════════════════════
+function renderHome() {
+  document.getElementById('homeDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('htn1').textContent = vocab.length;
+  document.getElementById('htn4').textContent = vocab.filter(v=>v.zh.length<=2).length;
+  renderDailyChallenge();
+  updateProg();
+}
+function renderDailyChallenge() {
+  const seed=new Date().toDateString(); let h=0;
+  for(let c of seed) h=(h*31+c.charCodeAt(0))%qaExercises.length;
+  const q=qaExercises[h];
+  document.getElementById('dailyBox').innerHTML=`
+    <div class="daily-lbl">Today's Challenge</div>
+    <div style="font-family:'Libre Baskerville',serif;font-size:1.35rem;font-style:italic;margin-bottom:3px">${q.q}</div>
+    <div style="font-size:0.72rem;color:var(--mist);margin-bottom:12px">${q.en}</div>
+    <button class="btn" style="margin-bottom:0" onclick="go('qa')">Practice Now →</button>
+  `;
+}
+function updateProg() {
+  const p=Math.min(100,Math.round(S.prog/S.progTotal*100));
+  document.getElementById('progPct').textContent=p+'%';
+  document.getElementById('progFill').style.width=p+'%';
+}
+function addProg() { S.prog=Math.min(S.progTotal,S.prog+1); updateProg(); }
+
+// ═══════════════════════════════════
+// DAILY QUIZ ENGINE
+// ═══════════════════════════════════
+function buildDailyQuiz() {
+  // 2 from current week (week 3), 2 from prior weeks
+  const w = Math.max(...vocab.map(v=>v.week));
+  const thisWeekQ = qaExercises.filter(q=>q.week===w);
+  const priorQ = qaExercises.filter(q=>q.week<w);
+  shuffle(thisWeekQ); shuffle(priorQ);
+  const picked = [...thisWeekQ.slice(0,2), ...priorQ.slice(0,2)];
+  shuffle(picked);
+  return picked.slice(0, 4);
+}
+function shuffle(arr) {
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+function launchDailyQuiz(preview) {
+  S.dqQuestions = buildDailyQuiz();
+  S.dqIdx = 0;
+  S.dqAnswered = false;
+  document.getElementById('dqDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  renderDailyQuestion();
+  document.getElementById('dailyOverlay').classList.add('show');
+}
+function renderDailyQuestion() {
+  const qs = S.dqQuestions;
+  const q = qs[S.dqIdx];
+  S.dqAnswered = false;
+  // dots
+  document.getElementById('dqDots').innerHTML = qs.map((_,i)=>
+    `<div class="notif-dot ${i<S.dqIdx?'done':i===S.dqIdx?'active':''}"></div>`
+  ).join('');
+  document.getElementById('dqNum').textContent = `Question ${S.dqIdx+1} of ${qs.length}`;
+  document.getElementById('dqQ').textContent = q.q;
+  document.getElementById('dqSub').textContent = q.en;
+  // options: correct + distractors
+  const correctSet = new Set(q.ans.map(a=>a.py));
+  let distractors = [];
+  for(const o of qaExercises) {
+    if(o===q)continue;
+    for(const a of o.ans){if(!correctSet.has(a.py)&&distractors.length<3)distractors.push(a);}
+  }
+  let opts = [...q.ans, ...distractors.slice(0,3)];
+  shuffle(opts);
+  document.getElementById('dqOpts').innerHTML = opts.map(a=>`
+    <button class="notif-opt" onclick="pickDQ(this,${correctSet.has(a.py)})">
+      <div class="op-main">${a.py}</div>
+      <div class="op-en">${a.en}</div>
+    </button>`).join('');
+}
+function pickDQ(btn, ok) {
+  if(S.dqAnswered)return;
+  S.dqAnswered=true;
+  btn.classList.add(ok?'correct':'wrong');
+  if(!ok){
+    const q=S.dqQuestions[S.dqIdx];
+    document.querySelectorAll('.notif-opt').forEach(b=>{
+      if(q.ans.some(a=>a.py===b.querySelector('.op-main').textContent))b.classList.add('reveal');
+    });
+  }
+  addProg();
+  setTimeout(()=>{
+    S.dqIdx++;
+    if(S.dqIdx<S.dqQuestions.length){ renderDailyQuestion(); }
+    else { closeDailyQuiz(); }
+  }, ok ? 900 : 1600);
+}
+function closeDailyQuiz() {
+  document.getElementById('dailyOverlay').classList.remove('show');
+}
+
+// ═══════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════
+async function toggleNotif() {
+  if(!S.notifEnabled){
+    if(!('Notification' in window)){
+      document.getElementById('notifStatus').textContent='Add to Home Screen first (Safari → Share → Add to Home Screen), then re-open and enable.';
+      return;
+    }
+    const p = await Notification.requestPermission();
+    if(p==='granted'){
+      S.notifEnabled=true;
+      document.getElementById('notifTog').classList.add('on');
+      document.getElementById('notifStatus').textContent=`✓ Enabled! Daily review at ${S.notifTime}.`;
+      saveS(); scheduleNotif();
+    } else {
+      document.getElementById('notifStatus').textContent='Denied. Go to Settings → [Your Browser] → Notifications → Allow for this site.';
+    }
+  } else {
+    S.notifEnabled=false;
+    document.getElementById('notifTog').classList.remove('on');
+    document.getElementById('notifStatus').textContent='Notifications disabled.';
+    saveS();
+  }
+}
+function saveNotifPrefs() {
+  S.notifTime=document.getElementById('notifTime').value;
+  saveS();
+  if(S.notifEnabled) document.getElementById('notifStatus').textContent=`✓ Daily review set for ${S.notifTime}.`;
+  scheduleNotif();
+}
+function scheduleNotif() {
+  if(!S.notifEnabled||!('Notification' in window)||Notification.permission!=='granted')return;
+  const now=new Date();
+  const [h,m]=S.notifTime.split(':').map(Number);
+  const key=`dq_sent_${now.toDateString()}`;
+  if(localStorage.getItem(key))return;
+  const target=new Date(now); target.setHours(h,m,0,0);
+  const diff=target-now;
+  const fire = () => {
+    const q=buildDailyQuiz()[0];
+    try {
+      const n=new Notification('Mandarin Review — 今日练习', {
+        body: `${q.q}  (${q.en}) — tap to answer`,
+        icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%230f0a1a" rx="20"/><text y="75" x="10" font-size="72" font-family="serif">汉</text></svg>',
+        tag:'mandarin-daily',
+        requireInteraction:true,
+      });
+      n.onclick=()=>{ window.focus(); launchDailyQuiz(false); n.close(); };
+      localStorage.setItem(key,'1');
+    } catch(e){}
+  };
+  if(diff>0 && diff<86400000) setTimeout(fire, diff);
+  else if(diff<=0 && diff>-300000) fire();
+}
+async function testNotif() {
+  if(!('Notification' in window)){alert('Add to Home Screen first.');return;}
+  const p=await Notification.requestPermission();
+  if(p==='granted'){
+    const q=buildDailyQuiz()[0];
+    new Notification('Mandarin Review — Test', {
+      body:`${q.q}  (${q.en}) — tap to answer`,
+      tag:'mandarin-test', requireInteraction:true,
+    });
+    document.getElementById('notifStatus').textContent='✓ Test notification sent!';
+  }
+}
+
+// ═══════════════════════════════════
+// FLASHCARDS
+// ═══════════════════════════════════
+function setFCCat(cat, pid) { S.fcCat=cat; activatePill(cat,pid); initFC(); }
+function initFC() {
+  let deck=S.fcCat==='All'?[...vocab]:vocab.filter(v=>v.cat===S.fcCat);
+  shuffle(deck); S.fcDeck=deck; S.fcIdx=0; S.fcCorrect=0; S.fcFlipped=false; renderFC();
+}
+function renderFC() {
+  const c=S.fcDeck[S.fcIdx];
+  if(!c){
+    document.getElementById('theFC').querySelector('.front').innerHTML=`<div class="fc-cat">Complete!</div><div class="fc-py">🎉</div><div class="fc-hint">${S.fcCorrect}/${S.fcDeck.length} correct</div>`;
+    document.getElementById('fcBtns').style.display='none';
+    document.getElementById('theFC').classList.remove('flipped');
+    return;
+  }
+  document.getElementById('fcCat').textContent=c.cat;
+  document.getElementById('fcPy').textContent=c.py;
+  document.getElementById('fcZh').textContent=c.zh;
+  document.getElementById('fcEn').textContent=c.en;
+  document.getElementById('fcN').textContent=S.fcIdx+1;
+  document.getElementById('fcOf').textContent=S.fcDeck.length;
+  document.getElementById('fcScore').textContent=S.fcCorrect+' ✓';
+  document.getElementById('fcBtns').style.display='none';
+  document.getElementById('theFC').classList.remove('flipped');
+  S.fcFlipped=false;
+}
+function flipFC() {
+  S.fcFlipped=!S.fcFlipped;
+  document.getElementById('theFC').classList.toggle('flipped',S.fcFlipped);
+  document.getElementById('fcBtns').style.display=S.fcFlipped?'flex':'none';
+}
+function rateFC(r) {
+  if(r!=='again'){S.fcCorrect++;addProg();}
+  S.fcIdx++; renderFC();
+}
+
+// ═══════════════════════════════════
+// WORD ORDER
+// ═══════════════════════════════════
+function initWO() { S.woIdx=Math.floor(Math.random()*woExercises.length); S.woCorrect=0; S.woTotal=0; renderWO(); }
+function renderWO() {
+  const ex=woExercises[S.woIdx]; S.woAns=[]; S.woChecked=false;
+  document.getElementById('woScore').textContent=`${S.woCorrect}/${S.woTotal}`;
+  document.getElementById('woPrompt').textContent=ex.en;
+  document.getElementById('woRes').className='wo-res';
+  document.getElementById('woDrop').className='wo-drop';
+  document.getElementById('woDrop').innerHTML='';
+  document.getElementById('woCheckBtn').style.display='block';
+  const tiles=[...ex.tiles]; shuffle(tiles);
+  document.getElementById('woTiles').innerHTML=tiles.map((t,i)=>
+    `<div class="tile" id="wt${i}" data-t="${t}" onclick="addWOTile(this)">${t}</div>`
+  ).join('');
+}
+function addWOTile(el){
+  if(el.classList.contains('used')||S.woChecked)return;
+  S.woAns.push({t:el.dataset.t,id:el.id}); el.classList.add('used'); renderWODrop();
+}
+function renderWODrop(){
+  document.getElementById('woDrop').innerHTML=S.woAns.length
+    ?S.woAns.map((a,i)=>`<div class="tile ans" onclick="removeWOTile(${i})">${a.t}</div>`).join('')
+    :'<span style="color:var(--mist);font-size:0.7rem;margin:auto">tap words below</span>';
+}
+function removeWOTile(i){
+  if(S.woChecked)return;
+  document.getElementById(S.woAns[i].id).classList.remove('used');
+  S.woAns.splice(i,1); renderWODrop();
+}
+function checkWO(){
+  const ex=woExercises[S.woIdx];
+  const attempt=S.woAns.map(a=>a.t).join(' ');
+  S.woChecked=true; S.woTotal++;
+  const ok=attempt===ex.ans;
+  if(ok)S.woCorrect++;
+  addProg();
+  document.getElementById('woDrop').className='wo-drop '+(ok?'ok':'bad');
+  const res=document.getElementById('woRes');
+  res.className='wo-res show '+(ok?'ok':'bad');
+  res.innerHTML=ok?`✓ Correct!  <em style="color:var(--gold)">${ex.py}</em>`:`✗ Answer: <em style="color:var(--gold)">${ex.py}</em>`;
+  document.getElementById('woCheckBtn').style.display='none';
+  document.getElementById('woScore').textContent=`${S.woCorrect}/${S.woTotal}`;
+}
+function nextWO(){ S.woIdx=(S.woIdx+1)%woExercises.length; renderWO(); }
+
+// ═══════════════════════════════════
+// Q&A
+// ═══════════════════════════════════
+function initQA(){ S.qaIdx=Math.floor(Math.random()*qaExercises.length); S.qaCorrect=0; S.qaTotal=0; renderQA(); }
+function renderQA(){
+  const ex=qaExercises[S.qaIdx]; S.qaAnswered=false;
+  document.getElementById('qaScore').textContent=`${S.qaCorrect}/${S.qaTotal}`;
+  document.getElementById('qaQ').textContent=ex.q;
+  document.getElementById('qaEn').textContent=ex.en;
+  const cs=new Set(ex.ans.map(a=>a.py));
+  let di=[];
+  for(const o of qaExercises){if(o===ex)continue;for(const a of o.ans){if(!cs.has(a.py)&&di.length<3)di.push(a);}}
+  let opts=[...ex.ans,...di.slice(0,3)]; shuffle(opts);
+  document.getElementById('qaOpts').innerHTML=opts.map(a=>`
+    <button class="qa-opt" onclick="pickQA(this,${cs.has(a.py)})">
+      <div class="om">${a.py}</div><div class="oe">${a.en}</div>
+    </button>`).join('');
+}
+function pickQA(btn,ok){
+  if(S.qaAnswered)return;
+  S.qaAnswered=true; S.qaTotal++;
+  if(ok)S.qaCorrect++;
+  addProg();
+  btn.classList.add(ok?'correct':'wrong');
+  if(!ok){
+    const ex=qaExercises[S.qaIdx];
+    document.querySelectorAll('.qa-opt').forEach(b=>{if(ex.ans.some(a=>a.py===b.querySelector('.om').textContent))b.classList.add('reveal');});
+  }
+  document.getElementById('qaScore').textContent=`${S.qaCorrect}/${S.qaTotal}`;
+}
+function nextQA(){ S.qaIdx=(S.qaIdx+1)%qaExercises.length; renderQA(); }
+
+// ═══════════════════════════════════
+// CHAR QUIZ
+// ═══════════════════════════════════
+function setCM(n){
+  document.querySelectorAll('.cm-tab').forEach((t,i)=>t.classList.toggle('on',i===n));
+  document.getElementById('cqPanel').style.display=n===0?'block':'none';
+  document.getElementById('trPanel').style.display=n===1?'block':'none';
+}
+function setCQCat(cat,pid){ S.cqCat=cat; activatePill(cat,pid); initCQ(); }
+function initCQ(){
+  let pool=S.cqCat==='All'?[...vocab]:vocab.filter(v=>v.cat===S.cqCat);
+  shuffle(pool); S.cqPool=pool; S.cqIdx=0; S.cqCorrect=0; S.cqTotal=0; renderCQ();
+}
+function renderCQ(){
+  const pool=S.cqPool; if(!pool.length)return;
+  const t=pool[S.cqIdx%pool.length]; S.cqAnswered=false;
+  document.getElementById('cqScore').textContent=`${S.cqCorrect}/${S.cqTotal}`;
+  document.getElementById('cqPy').textContent=t.py;
+  document.getElementById('cqEn').textContent=t.en;
+  let wrongs=vocab.filter(v=>v.zh!==t.zh); shuffle(wrongs); wrongs=wrongs.slice(0,3);
+  let opts=[t,...wrongs]; shuffle(opts);
+  document.getElementById('cqOpts').innerHTML=opts.map(o=>`
+    <div class="cq-opt" onclick="pickCQ(this,'${o.zh}','${t.zh}')">
+      <span class="cz">${o.zh}</span><span class="cp">${o.py}</span>
+    </div>`).join('');
+}
+function pickCQ(el,chosen,correct){
+  if(S.cqAnswered)return;
+  S.cqAnswered=true; S.cqTotal++;
+  const ok=chosen===correct;
+  if(ok)S.cqCorrect++;
+  addProg();
+  el.classList.add(ok?'correct':'wrong');
+  if(!ok)document.querySelectorAll('.cq-opt').forEach(o=>{if(o.querySelector('.cz').textContent===correct)o.classList.add('reveal');});
+  document.getElementById('cqScore').textContent=`${S.cqCorrect}/${S.cqTotal}`;
+}
+function nextCQ(){ S.cqIdx++; renderCQ(); }
+
+// ═══════════════════════════════════
+// TRACING
+// ═══════════════════════════════════
+function setTrCat(cat,pid){ S.traceCat=cat; activatePill(cat,pid); initTr(); }
+function initTr(){
+  let pool=S.traceCat==='All'?[...vocab]:vocab.filter(v=>v.cat===S.traceCat);
+  S.trPool=pool.filter(v=>v.zh.length<=2); if(!S.trPool.length)S.trPool=pool;
+  S.trIdx=0; renderTr();
+}
+function renderTr(){
+  const w=S.trPool[S.trIdx%S.trPool.length];
+  document.getElementById('trProg').textContent=`Word ${(S.trIdx%S.trPool.length)+1} of ${S.trPool.length}`;
+  document.getElementById('trPy').textContent=w.py;
+  document.getElementById('trEn').textContent=w.en;
+  document.getElementById('trGuide').textContent=w.zh;
+  S.trGuide=false;
+  document.getElementById('guideBtn').textContent='👁 Show Guide';
+  setupTraceCanvas();
+}
+function setupTraceCanvas(){
+  const canvas=document.getElementById('trCanvas');
+  const wrap=document.getElementById('trWrap');
+  const size=Math.min(wrap.clientWidth||300,300);
+  canvas.width=size; canvas.height=size;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#1a1228'; ctx.fillRect(0,0,size,size);
+  ctx.strokeStyle='rgba(232,184,75,0.1)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  [[size/2,0,size/2,size],[0,size/2,size,size/2],[0,0,size,size],[size,0,0,size]].forEach(([x1,y1,x2,y2])=>{
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+  });
+  ctx.setLineDash([]); ctx.strokeStyle='rgba(232,184,75,0.2)'; ctx.lineWidth=2;
+  ctx.strokeRect(1,1,size-2,size-2);
+  document.getElementById('trGuide').style.fontSize=Math.round(size*0.65)+'px';
+  document.getElementById('trGuide').style.opacity=S.trGuide?'1':'0';
+  if(S.trGuide) redrawGuide();
+}
+function redrawGuide(){
+  const canvas=document.getElementById('trCanvas');
+  const ctx=canvas.getContext('2d');
+  const size=canvas.width;
+  const w=S.trPool[S.trIdx%S.trPool.length];
+  ctx.font=`${Math.round(size*0.65)}px 'Noto Serif SC',serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle='rgba(232,184,75,0.12)';
+  ctx.fillText(w.zh,size/2,size/2);
+}
+function clearTrace(){ setupTraceCanvas(); if(S.trGuide)redrawGuide(); }
+function toggleGuide(){
+  S.trGuide=!S.trGuide;
+  document.getElementById('guideBtn').textContent=S.trGuide?'👁 Hide Guide':'👁 Show Guide';
+  clearTrace();
+}
+function prevTr(){ S.trIdx=Math.max(0,S.trIdx-1); renderTr(); }
+function nextTr(){ S.trIdx++; renderTr(); }
+function setupTraceDrawing(){
+  const canvas=document.getElementById('trCanvas');
+  function pos(e){
+    const r=canvas.getBoundingClientRect(),sx=canvas.width/r.width,sy=canvas.height/r.height;
+    return e.touches?{x:(e.touches[0].clientX-r.left)*sx,y:(e.touches[0].clientY-r.top)*sy}:{x:(e.clientX-r.left)*sx,y:(e.clientY-r.top)*sy};
+  }
+  canvas.addEventListener('mousedown',e=>{e.preventDefault();S.drawing=true;const p=pos(e);S.lx=p.x;S.ly=p.y;});
+  canvas.addEventListener('mousemove',e=>{e.preventDefault();if(!S.drawing)return;draw(pos(e));});
+  canvas.addEventListener('mouseup',()=>S.drawing=false);
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();S.drawing=true;const p=pos(e);S.lx=p.x;S.ly=p.y;},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!S.drawing)return;draw(pos(e));},{passive:false});
+  canvas.addEventListener('touchend',()=>S.drawing=false);
+}
+function draw(p){
+  const ctx=document.getElementById('trCanvas').getContext('2d');
+  ctx.beginPath();ctx.moveTo(S.lx,S.ly);ctx.lineTo(p.x,p.y);
+  ctx.strokeStyle='#ede8df';ctx.lineWidth=4;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
+  S.lx=p.x;S.ly=p.y;
+}
+
+// ═══════════════════════════════════
+// PATTERNS
+// ═══════════════════════════════════
+function renderPatterns(){
+  document.getElementById('patList').innerHTML=patterns.map(p=>`
+    <div class="pc">
+      <div class="pp">${p.pat}</div>
+      <div class="pen">${p.en}</div>
+      <div class="pst">${p.struct}</div>
+      <div class="pex">${p.ex.map(e=>`
+        <div class="prow">
+          <div class="ppy">${e.py}</div>
+          <div class="pzh">${e.zh}</div>
+          <div class="pen2">${e.en}</div>
+        </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════
+// VOCAB
+// ═══════════════════════════════════
+function setVCCat(cat,pid){ S.vcCat=cat; activatePill(cat,pid); renderVC(); }
+function renderVC(){
+  const list=S.vcCat==='All'?vocab:vocab.filter(v=>v.cat===S.vcCat);
+  document.getElementById('vcTotal').textContent=list.length;
+  document.getElementById('vcList').innerHTML=list.map(v=>`
+    <div class="vrow">
+      <div class="vzh">${v.zh}</div>
+      <div style="flex:1"><div class="vpy">${v.py}</div><div class="ven">${v.en}</div></div>
+      <div class="vcat">${v.cat}</div>
+    </div>`).join('');
+}
+</script>
+</body>
+</html>
