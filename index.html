@@ -1071,7 +1071,7 @@ function renderCQ(){
   let opts=[t,...wrongs]; shuffle(opts);
   document.getElementById('cqOpts').innerHTML=opts.map(o=>`
     <div class="cq-opt" onclick="pickCQ(this,'${o.zh}','${t.zh}')">
-      <span class="cz">${o.zh}</span><span class="cp">${o.py}</span>
+      <span class="cz">${o.zh}</span>
     </div>`).join('');
 }
 function pickCQ(el,chosen,correct){
