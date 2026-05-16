@@ -622,6 +622,48 @@ const vocab = [
   {zh:"和",py:"hé",en:"and",cat:"Connectors",week:3},
   // PEOPLE – Week 3
   {zh:"老师",py:"lǎoshī",en:"teacher",cat:"People",week:3},
+  // TIME WORDS – Week 4
+  {zh:"明天",py:"míngtiān",en:"tomorrow",cat:"Time",week:4},
+  {zh:"昨天",py:"zuótiān",en:"yesterday",cat:"Time",week:4},
+  {zh:"年",py:"nián",en:"year",cat:"Time",week:4},
+  // PLACES – Week 4
+  {zh:"公司",py:"gōngsī",en:"company / workplace",cat:"Places",week:4},
+  {zh:"办公室",py:"bàngōngshì",en:"office",cat:"Places",week:4},
+  {zh:"咖啡店",py:"kāfēidiàn",en:"coffee shop",cat:"Places",week:4},
+  // VERBS – Week 4
+  {zh:"工作",py:"gōngzuò",en:"to work",cat:"Verbs",week:4},
+  // COUNTRIES – Week 4
+  {zh:"法国",py:"Fǎguó",en:"France",cat:"Countries",week:4},
+  {zh:"上海",py:"Shànghǎi",en:"Shanghai",cat:"Countries",week:5},
+  // DEMONSTRATIVES – Week 5
+  {zh:"这",py:"zhè",en:"this",cat:"Demonstratives",week:5},
+  {zh:"那",py:"nà",en:"that",cat:"Demonstratives",week:5},
+  {zh:"哪",py:"nǎ",en:"which",cat:"Demonstratives",week:5},
+  {zh:"这个",py:"zhège",en:"this (+ measure word + noun)",cat:"Demonstratives",week:5},
+  {zh:"那个",py:"nàge",en:"that (+ measure word + noun)",cat:"Demonstratives",week:5},
+  {zh:"哪个",py:"nǎge",en:"which (+ measure word + noun)",cat:"Demonstratives",week:5},
+  // VERBS – Week 5
+  {zh:"在",py:"zài",en:"to be at / in (location)",cat:"Verbs",week:5},
+  {zh:"卖",py:"mài",en:"to sell",cat:"Verbs",week:5},
+  {zh:"也",py:"yě",en:"also / too",cat:"Verbs",week:5},
+  // PEOPLE – Week 5
+  {zh:"朋友",py:"péngyǒu",en:"friend",cat:"People",week:5},
+  // PLACES – Week 5
+  {zh:"学校",py:"xuéxiào",en:"school",cat:"Places",week:5},
+  {zh:"商场",py:"shāngchǎng",en:"mall / shopping center",cat:"Places",week:5},
+  // POSSESSIVE
+  {zh:"的",py:"de",en:"possessive particle (my, your, his…)",cat:"Grammar",week:5},
+  // MONEY
+  {zh:"钱",py:"qián",en:"money",cat:"Nouns",week:5},
+  {zh:"买卖",py:"mǎimài",en:"business / trade (buy+sell)",cat:"Nouns",week:5},
+  // TEA TYPES – Week 5
+  {zh:"红茶",py:"hóng chá",en:"black tea (lit. red tea)",cat:"Food & Drink",week:5},
+  {zh:"绿茶",py:"lǜ chá",en:"green tea",cat:"Food & Drink",week:5},
+  {zh:"乌龙茶",py:"wūlóng chá",en:"oolong tea",cat:"Food & Drink",week:5},
+  {zh:"普洱茶",py:"pǔ'ěr chá",en:"pu-er tea",cat:"Food & Drink",week:5},
+  {zh:"白茶",py:"bái chá",en:"white tea",cat:"Food & Drink",week:5},
+  {zh:"茉莉花茶",py:"mòlì huā chá",en:"jasmine tea",cat:"Food & Drink",week:5},
+  {zh:"菊花茶",py:"júhuā chá",en:"chrysanthemum tea",cat:"Food & Drink",week:5},
 ];
 
 const patterns = [
@@ -672,6 +714,16 @@ const woExercises = [
   {en:"I want to drink one bottle of beer.",tiles:["wǒ","xiǎng","hē","yī","píng","píjiǔ","。"],ans:"wǒ xiǎng hē yī píng píjiǔ 。",py:"Wǒ xiǎng hē yī píng píjiǔ.",week:3},
   {en:"I can speak French, English and Mandarin.",tiles:["wǒ","huì","shuō","fǎyǔ","yīngyǔ","hé","hànyǔ","。"],ans:"wǒ huì shuō fǎyǔ yīngyǔ hé hànyǔ 。",py:"Wǒ huì shuō fǎyǔ, yīngyǔ hé hànyǔ.",week:3},
   {en:"How do you make American food?",tiles:["Měiguó cài","zěnme","zuò","？"],ans:"Měiguó cài zěnme zuò ？",py:"Měiguó cài zěnme zuò?",week:3},
+  {en:"Are you going to the shop today?",tiles:["nǐ","jīntiān","qù","shāngdiàn","ma","？"],ans:"nǐ jīntiān qù shāngdiàn ma ？",py:"Nǐ jīntiān qù shāngdiàn ma?",week:4},
+  {en:"Are you going to a restaurant to eat tomorrow?",tiles:["nǐ","míngtiān","qù","fàndiàn","chīfàn","ma","？"],ans:"nǐ míngtiān qù fàndiàn chīfàn ma ？",py:"Nǐ míngtiān qù fàndiàn chīfàn ma?",week:4},
+  {en:"Do you go to the office on Sunday?",tiles:["xīngqītiān","nǐ","qù","bàngōngshì","ma","？"],ans:"xīngqītiān nǐ qù bàngōngshì ma ？",py:"Xīngqītiān nǐ qù bàngōngshì ma?",week:4},
+  {en:"What date are you going to France?",tiles:["nǐ","jǐ yuè","jǐ hào","qù","Fǎguó","？"],ans:"nǐ jǐ yuè jǐ hào qù Fǎguó ？",py:"Nǐ jǐ yuè jǐ hào qù Fǎguó?",week:4},
+  {en:"Is this book yours?",tiles:["zhège","shū","shì","nǐ de","ma","？"],ans:"zhège shū shì nǐ de ma ？",py:"Zhège shū shì nǐ de ma?",week:5},
+  {en:"Which cup of coffee do you want to drink?",tiles:["nǐ","xiǎng","hē","nǎ bēi","kāfēi","？"],ans:"nǐ xiǎng hē nǎ bēi kāfēi ？",py:"Nǐ xiǎng hē nǎ bēi kāfēi?",week:5},
+  {en:"That dish is delicious.",tiles:["nàge","cài","hěn","hǎochī","。"],ans:"nàge cài hěn hǎochī 。",py:"Nàge cài hěn hǎochī.",week:5},
+  {en:"Tomorrow I will go to the mall to buy white tea.",tiles:["míngtiān","wǒ","qù","shāngchǎng","mǎi","bái chá","。"],ans:"míngtiān wǒ qù shāngchǎng mǎi bái chá 。",py:"Míngtiān wǒ qù shāngchǎng mǎi bái chá.",week:5},
+  {en:"I am also very good.",tiles:["wǒ","yě","hěn","hǎo","。"],ans:"wǒ yě hěn hǎo 。",py:"Wǒ yě hěn hǎo.",week:5},
+  {en:"On Sunday I am in France.",tiles:["xīngqītiān","wǒ","zài","Fǎguó","。"],ans:"xīngqītiān wǒ zài Fǎguó 。",py:"Xīngqītiān wǒ zài Fǎguó.",week:5},
 ];
 
 const qaExercises = [
